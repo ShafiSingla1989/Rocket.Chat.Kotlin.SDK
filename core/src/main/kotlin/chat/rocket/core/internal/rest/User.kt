@@ -4,6 +4,7 @@ import chat.rocket.common.RocketChatException
 import chat.rocket.common.model.BaseResult
 import chat.rocket.common.model.RoomType
 import chat.rocket.common.model.User
+import chat.rocket.common.model.DownloadResult
 import chat.rocket.common.util.CalendarISO8601Converter
 import chat.rocket.core.RocketChatClient
 import chat.rocket.core.internal.RestMultiResult
@@ -142,6 +143,27 @@ suspend fun RocketChatClient.resetAvatar(userId: String): Boolean {
 
     return handleRestCall<BaseResult>(request, BaseResult::class.java).success
 }
+
+/*
+  * Request for downloading user's data.
+  *
+  * @param userId The ID of the user whose data need to downloaded.
+  *
+  * @return True if the data download request is placed successfully.
+  */
+ suspend fun RocketChatClient.requestDataDownload(userId: String): DownloadResult = withContext(CommonPool)  {
+     val payload = UserPayload(userId, null, null)
+     val adapter = moshi.adapter(UserPayload::class.java)
+ 
+     val payloadBody = adapter.toJson(payload)
+     val body = RequestBody.create(MEDIA_TYPE_JSON, payloadBody)
+ 
+     val httpUrl = requestUrl(restUrl, "users.requestDataDownload").build()
+     val request = requestBuilderForAuthenticatedMethods(httpUrl).post(body).build()
+ 
+     return@withContext handleRestCall<DownloadResult>(request, DownloadResult::class.java)
+ }
+
 
 /**
  * Sets the user's avatar.

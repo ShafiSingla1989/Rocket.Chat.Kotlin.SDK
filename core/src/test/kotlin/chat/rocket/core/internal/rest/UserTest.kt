@@ -260,6 +260,20 @@ class UserTest {
     }
 
     @Test
+    fun `requestDataDownload() should succeed with valid parameters`() {
+        mockServer.expect()
+                .post()
+                .withPath("/api/v1/users.requestDataDownload")
+                .andReturn(200, SUCCESS)
+                .once()
+
+        runBlocking {
+            val result = sut.requestDataDownload("userId")
+            assert(result)
+        }
+    }
+
+    @Test
     fun `setAvatar(file, mimeType) should succeed with valid parameters`() {
         mockServer.expect()
                 .post()
